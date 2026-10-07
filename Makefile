@@ -1,9 +1,21 @@
-JAVA_FILES := $(wildcard *.java) Lexer.java
+JFLEX = jflex
 
-all: Main.class
+all: jar
 
-Lexer.java: lexer.flex
-	jflex lexer.flex
+generate:
+	$(JFLEX) -d src src/LexicalAnalyzer.flex
 
-Main.class: ${JAVA_FILES}
-	javac ${JAVA_FILES}
+compile: generate
+	mkdir -p bin
+	javac -d bin src/*.java
+
+jar: compile
+	mkdir -p dist
+	jar cfe dist/part1.jar Main -C bin .
+
+doc:
+	mkdir -p doc
+	javadoc -d doc src/*.java
+
+clean:
+	rm -rf bin dist/part1.jar src/LexicalAnalyzer.java
