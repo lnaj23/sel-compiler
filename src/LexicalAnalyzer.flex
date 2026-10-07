@@ -44,8 +44,10 @@ Number  = [0-9]+
 "=="        { return new Symbol(LexicalUnit.EQUAL,    yyline, yycolumn, yytext()); }
 "<="        { return new Symbol(LexicalUnit.SMALEQ,   yyline, yycolumn, yytext()); }
 "<"         { return new Symbol(LexicalUnit.SMALLER,  yyline, yycolumn, yytext()); }
+
 "##" [^\r\n]*   { }
 "$"  [^\r\n]*   { }
+
 [ \t\r\n]+  { }
 .           { throw new RuntimeException("Unknown symbol: " + yytext()); }
 
