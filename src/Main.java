@@ -8,7 +8,7 @@ public class Main {
 
         Symbol s = scanner.nextToken();
         while (s.getType() != LexicalUnit.EOS) {
-            System.out.println(s);
+            System.out.println(s.toString());
             s = scanner.nextToken();
         }
         reader.close();

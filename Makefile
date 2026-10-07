@@ -1,4 +1,5 @@
 JFLEX = jflex
+FILE ?= test/Euclid.sel
 
 all: jar
 
@@ -19,3 +20,10 @@ doc:
 
 clean:
 	rm -rf bin dist/part1.jar src/LexicalAnalyzer.java
+
+run: jar
+	java -jar dist/part1.jar $(FILE)
+
+check: jar
+	java -jar dist/part1.jar test/Euclid.sel > mon.out
+	diff mon.out test/Euclid.output
