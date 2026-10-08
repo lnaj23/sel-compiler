@@ -6,6 +6,7 @@
 %column
 %type Symbol
 %function nextToken
+%xstate LONGCOMMENT
 
 %eofval{
     return new Symbol(LexicalUnit.EOS, yyline, yycolumn);
@@ -45,11 +46,14 @@ Number  = [0-9]+
 "<="        { return new Symbol(LexicalUnit.SMALEQ,   yyline, yycolumn, yytext()); }
 "<"         { return new Symbol(LexicalUnit.SMALLER,  yyline, yycolumn, yytext()); }
 
-"##" [^\r\n]*   { }
-"$"  [^\r\n]*   { }
+"##"        { yybegin(LONGCOMMENT); } // There we enter the longcomment mode
+"$"[^\r\n]* { }
 
-[ \t\r\n]+  { }
-.           { throw new RuntimeException("Unknown symbol: " + yytext()); }
+<LONGCOMMENT> {
+    "##"      { yybegin(YYINITIAL); } // If ## is obtained -> switch to intial scanner mode
+    [^]       { } // Every other caracters ignore
+    <<EOF>>   { throw new RuntimeException("Long comment not closed on line " + yyline); } // If we're on the end-of-file (no ##), then throw error
+}
 
 [ \t\r\n]+  { }
 .           { throw new RuntimeException("Unknown symbol: " + yytext()); }

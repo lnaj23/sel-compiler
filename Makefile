@@ -1,5 +1,5 @@
 JFLEX = jflex
-FILE ?= test/Euclid.sel
+FILE ?= test/err2.sel
 
 all: jar
 
