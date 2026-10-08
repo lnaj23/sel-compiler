@@ -702,7 +702,7 @@ class LexicalAnalyzer {
         zzAtEOF = true;
             switch (zzLexicalState) {
             case LONGCOMMENT: {
-              throw new RuntimeException("Long comment not closed -> line " + yyline);
+              throw new RuntimeException("Long comment not closed on line " + yyline);
             }  // fall though
             case 45: break;
             default:

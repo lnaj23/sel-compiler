@@ -20,7 +20,7 @@ public class Main {
             if (currentSymbol.getType() == LexicalUnit.VARNAME) {
                variablesEncountered.putIfAbsent(currentSymbol.getValue().toString(), currentSymbol.getLine());
             }
-         System.out.println(currentSymbol); // Use directly the toString() method overwriten
+         System.out.println(currentSymbol); // Println use directly the toString() method overwriten, no need to call it
          currentSymbol = scanner.nextToken();
       }
       showVariables(variablesEncountered);
