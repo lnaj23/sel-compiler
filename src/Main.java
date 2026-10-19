@@ -4,7 +4,14 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Main class for the SEL compiler scanner.
+ */
 public class Main {
+   /**
+    * Program entry point.
+    * @param args args[0] must be the sourceFile.sel path.
+   */
    public static void main(String[] args) {
       if (args.length != 1) {
         System.err.println("Please add the .sel pathfile in the Makefile.");
@@ -14,18 +21,19 @@ public class Main {
       try (Reader reader = new FileReader(args[0])) {
          LexicalAnalyzer scanner = new LexicalAnalyzer(reader);
 
-         Map<String, Integer> variablesEncountered = new TreeMap<>();
+         Map<String, Integer> variablesEncountered = new TreeMap<>(); // Storing all variables with their line
          Symbol currentSymbol = scanner.nextToken();
-         while (currentSymbol.getType() != LexicalUnit.EOS) {
-            if (currentSymbol.getType() == LexicalUnit.VARNAME) {
+         while (currentSymbol.getType() != LexicalUnit.EOS) { // Scanner loop
+            if (currentSymbol.getType() == LexicalUnit.VARNAME) { // Filtering variables and adding them to the storing map if they never appeared
                variablesEncountered.putIfAbsent(currentSymbol.getValue().toString(), currentSymbol.getLine());
             }
          System.out.println(currentSymbol); // Println use directly the toString() method overwriten, no need to call it
          currentSymbol = scanner.nextToken();
-      }
-      showVariables(variablesEncountered);
+         }
+         
+         showVariables(variablesEncountered); // After printing all caracters units, printing variables
       
-      }  catch (RuntimeException error) {
+      }  catch (RuntimeException error) { // Catching errors defined in .flex file
          System.err.println("Lexical error: " + error.getMessage());
          System.exit(1);
       }  catch (IOException error) {
@@ -34,10 +42,14 @@ public class Main {
       }
    }
 
+   /**
+   * Displays all variables encountered and their first line of appearance.
+   * @param variablesEncountered a map of variable names to their first line number
+   */
    private static void showVariables(Map<String, Integer> variablesEncountered) {
       System.out.println("\nVariables");
       for (Map.Entry<String, Integer> var : variablesEncountered.entrySet()) {
-         String line = var.getKey() + " " + var.getValue(); 
+         String line = var.getKey() + " " + var.getValue(); // Forming the string to print required
          System.out.println(line);
       }
    }  
