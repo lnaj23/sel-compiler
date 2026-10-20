@@ -1,8 +1,7 @@
-JFLEX = jflex
-FILE ?= test/whitespaces.sel
+FILE ?= test/Euclid.sel
 
 all:
-	$(JFLEX) -d src src/LexicalAnalyzer.flex
+	jflex -d src src/LexicalAnalyzer.flex
 	javac -d bin src/*.java
 	jar cfe dist/part1.jar Main -C bin .
 
