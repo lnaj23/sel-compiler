@@ -1,1 +1,3 @@
-Main() { ## 
+## Unclosed long comment ##
+
+Main() { ## }

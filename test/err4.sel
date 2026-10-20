@@ -1,0 +1,5 @@
+## single '#' that is not a long comment ##
+Main() {
+    x := 5; # not a valid comment
+    @x;
+}

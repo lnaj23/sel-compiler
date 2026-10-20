@@ -1,5 +1,5 @@
 JFLEX = jflex
-FILE ?= test/Euclid.sel
+FILE ?= test/err4.sel
 
 all:
 	$(JFLEX) -d src src/LexicalAnalyzer.flex
