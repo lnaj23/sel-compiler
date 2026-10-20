@@ -1,5 +1,0 @@
-## Stray # (single) that is not a long comment delimiter ##
-Main() {
-    x := 5; # not a valid comment
-    @x;
-}

@@ -1,5 +1,5 @@
 JFLEX = jflex
-FILE ?= test/err4.sel
+FILE ?= test/whitespaces.sel
 
 all:
 	$(JFLEX) -d src src/LexicalAnalyzer.flex
