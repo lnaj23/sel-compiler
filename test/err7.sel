@@ -1,0 +1,5 @@
+## Variable starting with maj character: invalid and symbol table not shown##
+Main() {
+    a :=6
+    X := a*5;
+}

@@ -1,0 +1,4 @@
+## Number followed of a Variable starting with MAJ character : consider 1 as a number and the A following  as invalid. The rest of the line is not read ##
+Main() {
+    1Ax := 5;
+}
