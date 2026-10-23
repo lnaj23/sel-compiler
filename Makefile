@@ -1,4 +1,4 @@
-FILE ?= test/Euclid.sel
+FILE ?= test/err7.sel
 
 all:
 	jflex -d src src/LexicalAnalyzer.flex
