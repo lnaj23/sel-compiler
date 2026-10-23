@@ -1,4 +1,4 @@
-## Number followed of a Variable starting with lowercast character : consider 1 as a number and the aX following  as a variable.  ##
+## Number followed by variable starting with lowercase character : consider 1 as a number and the aX following  as a variable.  ##
 Main() {
     1aX := 5;
 }
