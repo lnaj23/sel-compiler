@@ -1,0 +1,168 @@
+==== FIRST ====
+Par quoi peut commencer un non-terminal
+
+First(<Factor>)    = { [VarName], [Number], (, - }
+
+First(<Term'>)     = { *, /, ε }
+
+First(<Term>)      = First(<Factor>)
+                   = { [VarName], [Number], (, - }
+
+First(<ExprArith'>) = { +, -, ε }
+
+First(<ExprArith>) = First(<Term>)
+                   = { [VarName], [Number], (, - }
+
+First(<Comp>)      = { ==, <=, < }
+
+First(<CondAtom>)  = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+
+First(<CondAnd'>)  = { &&, ε }
+
+First(<CondAnd>)   = First(<CondAtom>)
+                   = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+
+First(<Cond'>)     = { ||, ε }
+
+First(<Cond>)      = First(<CondAnd>)
+                   = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+
+First(<Assign>)    = { [VarName] }
+
+First(<If>)        = { If }
+
+First(<Loop>)      = { LOOP }
+
+First(<Instruction>) = { [VarName], If, LOOP, @, IN }
+
+First(<Code>)      = { [VarName], If, LOOP, @, IN, ε }
+
+First(<S>)         = { Main }
+
+
+
+==== FOLLOW ====
+Pour trouver Follow(A), on cherche toutes les occurrences de A dans la partie droite des règles de la grammaire, et on analyse ce qui vient juste après :
+
+    Si rien ne suit A (ou si A est en fin de règle), alors tout ce qui peut suivre le non-terminal de gauche s'ajoute à Follow(A) (parce que A hérite du Follow de son parent).
+
+    Si un terminal suit A, ce terminal entre directement dans Follow(A).
+
+    Si un non-terminal B suit A, on ajoute First(B) (sans le ε) à Follow(A). Et si B peut se réduire à ε (contient ε dans son First), alors ce qui suit B s'ajoute aussi à Follow(A).
+
+    Le symbole de fin de fichier $ est toujours dans le Follow de l'axiome de départ (<S>).
+
+
+
+Follow(<S>)            = { $ }
+
+Follow(<Code>)         = { } }
+  ← S → ...{ <Code> }  et  If → ...{ <Code> }  et  Loop → ...{ <Code> }
+
+Follow(<Instruction>)  = First(<Code>) \ {ε} ∪ Follow(<Code>)
+                       = { [VarName], If, LOOP, @, IN, } }
+
+Follow(<Assign>)       = { ; }
+  ← Instruction → <Assign> ;
+
+Follow(<If>)           = Follow(<Instruction>)
+                       = { [VarName], If, LOOP, @, IN, } }
+
+Follow(<Loop>)         = Follow(<Instruction>)
+                       = { [VarName], If, LOOP, @, IN, } }
+
+Follow(<ExprArith>)    = { ==, <=, <,                (depuis Comp dans CondAtom)
+                           +, -, *, /,               (depuis ExprArith' et Term')  -- NON, ce sont des First internes
+                           ), ;, ],                  (depuis Factor, Assign, Cond)
+                           ==, <=, < }
+
+  Calculons proprement :
+  - Assign → [VarName] := <ExprArith>          → Follow(Assign) = {;} ⊆ Follow(ExprArith)
+  - Factor → ( <ExprArith> )                   → { ) } ⊆ Follow(ExprArith)
+  - CondAtom → <ExprArith> <Comp> <ExprArith>  → First(Comp) = {==,<=,<} ⊆ Follow(ExprArith)
+                                                → Follow(CondAtom) ⊆ Follow(ExprArith)
+  - ExprArith → <Term> <ExprArith'>            → si ε ∈ First(ExprArith') → Follow(ExprArith) ⊆ Follow(Term)  (interne)
+
+  Follow(<ExprArith>) = { ;, ), ==, <=, < } ∪ Follow(<CondAtom>)
+
+Follow(<CondAtom>)  :
+  - CondAnd → <CondAtom> <CondAnd'>   → First(CondAnd')\{ε} = {&&} ⊆ Follow(CondAtom)
+                                      → ε ∈ First(CondAnd') → Follow(CondAnd) ⊆ Follow(CondAtom)
+
+Follow(<CondAnd>)   :
+  - Cond → <CondAnd> <Cond'>          → First(Cond')\{ε} = {||} ⊆ Follow(CondAnd)
+                                      → ε ∈ First(Cond') → Follow(Cond) ⊆ Follow(CondAnd)
+
+Follow(<Cond>)      :
+  - If   → If ( <Cond> ) ...          → { ) } ⊆ Follow(Cond)
+  - Loop → LOOP ( <Cond> ) ...        → { ) } ⊆ Follow(Cond)
+  - CondAtom → [ <Cond> ]             → { ] } ⊆ Follow(Cond)
+  - Cond → <CondAnd> <Cond'>          → Follow(Cond) ⊆ Follow(Cond')  (si ε ∈ First(Cond'))
+
+  Follow(<Cond>)     = { ), ] }
+  Follow(<Cond'>)    = Follow(<Cond>) = { ), ] }
+  Follow(<CondAnd>)  = { ||, ), ] }
+  Follow(<CondAnd'>) = Follow(<CondAnd>) = { ||, ), ] }
+  Follow(<CondAtom>) = { &&, ||, ), ] }
+
+  Donc :
+  Follow(<ExprArith>) = { ;, ), ==, <=, <, &&, ||, ] }
+
+Follow(<ExprArith'>) = Follow(<ExprArith>) = { ;, ), ==, <=, <, &&, ||, ] }
+
+Follow(<Term>)       :
+  - ExprArith → <Term> <ExprArith'>
+    → First(ExprArith')\{ε} = {+,-} ⊆ Follow(Term)
+    → ε ∈ First(ExprArith') → Follow(ExprArith) ⊆ Follow(Term)
+  Follow(<Term>)  = { +, -, ;, ), ==, <=, <, &&, ||, ] }
+
+Follow(<Term'>)      = Follow(<Term>) = { +, -, ;, ), ==, <=, <, &&, ||, ] }
+
+Follow(<Factor>)     :
+  - Term → <Factor> <Term'>
+    → First(Term')\{ε} = {*,/} ⊆ Follow(Factor)
+    → ε ∈ First(Term') → Follow(Term) ⊆ Follow(Factor)
+  Follow(<Factor>) = { *, /, +, -, ;, ), ==, <=, <, &&, ||, ] }
+
+Follow(<Comp>)       :
+  - CondAtom → <ExprArith> <Comp> <ExprArith>
+    → First(ExprArith) = {[VarName],[Number],(,-} ⊆ Follow(Comp)
+  Follow(<Comp>)   = { [VarName], [Number], (, - }
+
+  ==== RESUME ====
+
+First(<S>)           = { Main }
+First(<Code>)        = { [VarName], If, LOOP, @, IN, ε }
+First(<Instruction>) = { [VarName], If, LOOP, @, IN }
+First(<Assign>)      = { [VarName] }
+First(<ExprArith>)   = { [VarName], [Number], (, - }
+First(<ExprArith'>)  = { +, -, ε }
+First(<Term>)        = { [VarName], [Number], (, - }
+First(<Term'>)       = { *, /, ε }
+First(<Factor>)      = { [VarName], [Number], (, - }
+First(<Cond>)        = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+First(<Cond'>)       = { ||, ε }
+First(<CondAnd>)     = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+First(<CondAnd'>)    = { &&, ε }
+First(<CondAtom>)    = { FALSE, TRUE, [, !, [VarName], [Number], (, - }
+First(<Comp>)        = { ==, <=, < }
+First(<If>)          = { If }
+First(<Loop>)        = { LOOP }
+
+Follow(<S>)          = { $ }
+Follow(<Code>)       = { } }
+Follow(<Instruction>)= { [VarName], If, LOOP, @, IN, } }
+Follow(<Assign>)     = { ; }
+Follow(<ExprArith>)  = { ;, ), ==, <=, <, &&, ||, ] }
+Follow(<ExprArith'>) = { ;, ), ==, <=, <, &&, ||, ] }
+Follow(<Term>)       = { +, -, ;, ), ==, <=, <, &&, ||, ] }
+Follow(<Term'>)      = { +, -, ;, ), ==, <=, <, &&, ||, ] }
+Follow(<Factor>)     = { *, /, +, -, ;, ), ==, <=, <, &&, ||, ] }
+Follow(<Cond>)       = { ), ] }
+Follow(<Cond'>)      = { ), ] }
+Follow(<CondAnd>)    = { ||, ), ] }
+Follow(<CondAnd'>)   = { ||, ), ] }
+Follow(<CondAtom>)   = { &&, ||, ), ] }
+Follow(<Comp>)       = { [VarName], [Number], (, - }
+Follow(<If>)         = { [VarName], If, LOOP, @, IN, } }
+Follow(<Loop>)       = { [VarName], If, LOOP, @, IN, } }
