@@ -1,0 +1,53 @@
+[1]  <S>           → Main() { <Code> }
+
+[2]  <Code>        → <Instruction> <Code>
+[3]               → ε
+
+[4]  <Instruction> → <Assign> ;
+[5]               → <Loop>
+[6]               → <If>
+[7]               → @ [VarName] ;
+[8]               → IN [VarName] ;
+
+[9]  <Assign>      → [VarName] := <ExprArith>
+
+[10] <ExprArith>   → <Term> <ExprArith'>
+
+[11] <ExprArith'>  → + <Term> <ExprArith'>
+[12]               → - <Term> <ExprArith'>
+[13]               → ε
+
+[14] <Term>        → <Factor> <Term'>
+
+[15] <Term'>       → * <Factor> <Term'>
+[16]               → / <Factor> <Term'>
+[17]               → ε
+
+[18] <Factor>      → [VarName]
+[19]               → [Number]
+[20]               → ( <ExprArith> )
+[21]               → - <Factor>
+
+[22] <Cond>        → <CondAnd> <Cond'>
+
+[23] <Cond'>       → || <CondAnd> <Cond'>
+[24]               → ε
+
+[25] <CondAnd>     → <CondAtom> <CondAnd'>
+
+[26] <CondAnd'>    → && <CondAtom> <CondAnd'>
+[27]               → ε
+
+[28] <CondAtom>    → FALSE
+[29]               → TRUE
+[30]               → [ <Cond> ]
+[31]               → ! <CondAtom>
+[32]               → <ExprArith> <Comp> <ExprArith>
+
+[33] <Comp>        → ==
+[34]               → <=
+[35]               → <
+
+[36] <If>          → If ( <Cond> ) { <Code> }
+
+[37] <Loop>        → LOOP ( <Cond> ) { <Code> }
