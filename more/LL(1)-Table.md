@@ -1,4 +1,17 @@
 # LL(1) Parse Table — SEL Grammar
+For each production rule A -> alpha, the table M[A, a] is filled using two rules:
+
+    For every terminal a in First(alpha) \ {epsilon}, add A -> alpha to M[A, a].
+
+    If epsilon is in First(alpha), add A -> alpha to M[A, b] for every terminal b in Follow(A).
+
+Example (<ExprArith'>):
+
+    Rule [11] (<ExprArith'> -> +  <ExprArith'>): Since First = {+}, we place [11] in M[<ExprArith'>, +].
+
+    Rule [13] (<ExprArith'> -> epsilon): Since it derives epsilon, we place [13] in the columns of Follow(<ExprArith'>) = { ;, ), ==, <=, <, &&, ||, ] }.
+
+Since no cell contains more than one rule, there are no conflicts and the grammar is LL(1).
 
 | Token | Main | [VarName] | [Number] | ( | ) | { | } | ; | := | @ | IN | If | LOOP | + | - | * | / | == | <= | < | && | \|\| | ! | FALSE | TRUE | [ | ] | $ |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

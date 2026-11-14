@@ -42,16 +42,13 @@ First(<S>)         = { Main }
 
 
 ==== FOLLOW ====
-Pour trouver Follow(A), on cherche toutes les occurrences de A dans la partie droite des règles de la grammaire, et on analyse ce qui vient juste après :
+If nothing follows A (or if A is at the end of a rule), then everything that can follow the left-hand side non-terminal is added to Follow(A) (because A inherits the Follow of its parent).
 
-    Si rien ne suit A (ou si A est en fin de règle), alors tout ce qui peut suivre le non-terminal de gauche s'ajoute à Follow(A) (parce que A hérite du Follow de son parent).
+If a terminal follows A, that terminal goes directly into Follow(A).
 
-    Si un terminal suit A, ce terminal entre directement dans Follow(A).
+If a non-terminal B follows A, we add First(B) (excluding epsilon) to Follow(A). And if B can reduce to epsilon (contains epsilon in its First set), then what follows B is also added to Follow(A).
 
-    Si un non-terminal B suit A, on ajoute First(B) (sans le ε) à Follow(A). Et si B peut se réduire à ε (contient ε dans son First), alors ce qui suit B s'ajoute aussi à Follow(A).
-
-    Le symbole de fin de fichier $ est toujours dans le Follow de l'axiome de départ (<S>).
-
+The end-of-file symbol $ is always in the Follow set of the start symbol (<S>).
 
 
 Follow(<S>)            = { $ }
