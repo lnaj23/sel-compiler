@@ -1,15 +1,15 @@
-FILE ?= test/err7.sel
 
-all:
-	jflex -d src src/LexicalAnalyzer.flex
-	javac -d bin src/*.java
-	jar cfe dist/part1.jar Main -C bin .
+default: build
 
-run:
-	java -jar dist/part1.jar $(FILE)
+jflex:
+	jflex src/LexicalAnalyzer.flex
 
-doc:
-	javadoc -private -d doc/ src/*.java
+build: jflex
+	javac -d more -cp src/ src/Main.java
+	jar cfe dist/part2.jar Main -C bin .
+	# javadoc -private src/*.java -d doc/javadoc
 
-clean:
-	rm -rf bin dist/part1.jar src/LexicalAnalyzer.java
+testing:
+	java -jar dist/part2.jar test/euclid.sel
+
+all: build testing
