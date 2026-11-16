@@ -47,6 +47,7 @@ public class Main{
         final LexicalAnalyzer analyzer = new LexicalAnalyzer(source);
         
         final Parser parser = new Parser(analyzer);
-        ParseTree finalTree = parser.parse();
+        parser.parse();
+        System.out.println(parser.getDerivation());
     }
 }

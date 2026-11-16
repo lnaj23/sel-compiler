@@ -83,6 +83,8 @@ UpToEnd        = ({Any}{EndLine}) | ({EndLine})
   "LOOP"             {return new Symbol(LexicalUnit.LOOP, yyline, yycolumn, yytext());}
 // Comparison and logic operators  
   "!"                 {return new Symbol(LexicalUnit.NEGATION, yyline, yycolumn, yytext());}
+  "["                 {return new Symbol(LexicalUnit.LSQUARE, yyline, yycolumn, yytext());}
+  "]"                 {return new Symbol(LexicalUnit.RSQUARE, yyline, yycolumn, yytext());}
   "&&"                {return new Symbol(LexicalUnit.AND, yyline, yycolumn, yytext());}
   "||"                {return new Symbol(LexicalUnit.OR, yyline, yycolumn, yytext());}
   "=="                {return new Symbol(LexicalUnit.EQUAL, yyline, yycolumn, yytext());}
@@ -91,7 +93,9 @@ UpToEnd        = ({Any}{EndLine}) | ({EndLine})
 // IO keywords
   "@"             {return new Symbol(LexicalUnit.AROBASE, yyline, yycolumn, yytext());}
   "IN"              {return new Symbol(LexicalUnit.IN, yyline, yycolumn, yytext());}
-// Numbers
+// Numbers and booleans
+  "TRUE"             {return new Symbol(LexicalUnit.TRUE, yyline, yycolumn, yytext());}
+  "FALSE"             {return new Symbol(LexicalUnit.FALSE, yyline, yycolumn, yytext());}
   {BadInteger}        {System.err.println("Warning! Numbers with leading zeros are deprecated: " + yytext()); return new Symbol(LexicalUnit.NUMBER, yyline, yycolumn, Integer.valueOf(yytext()));}
   {Integer}           {return new Symbol(LexicalUnit.NUMBER, yyline, yycolumn, Integer.valueOf(yytext()));}
   {VarName}           {return new Symbol(LexicalUnit.VARNAME,yyline, yycolumn,yytext());}

@@ -8,6 +8,10 @@ public enum LexicalUnit{
     VARNAME,
     /** [Number] */
     NUMBER,
+    /** TRUE */
+    TRUE,
+    /** FALSE */
+    FALSE,
     /** <code>;</code> */
     SEMI,
     /** <code>:=</code> */
@@ -16,6 +20,10 @@ public enum LexicalUnit{
     LPAREN,
     /** <code>)</code> */
     RPAREN,
+    /** <code>[</code> */
+    LSQUARE,
+    /** <code>]</code> */
+    RSQUARE,
     /** <code>-</code> */
     MINUS,
     /** <code>+</code> */
