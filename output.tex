@@ -1,0 +1,14 @@
+\documentclass[border=5pt]{standalone}
+
+\usepackage{tikz}
+\usepackage{forest}
+
+\begin{document}
+
+\begin{forest}for tree={rectangle, draw, l sep=20pt}[{<S>} [{Main} ][{(} ][{)} ][{{} ][{<Code>} [{<Instruction>} [{IN} ][{a} ][{;} ]][{<Code>} [{<Instruction>} [{IN} ][{b} ][{;} ]][{<Code>} [{<Instruction>} [{<Loop>} [{LOOP} ][{(} ][{<Cond>} [{<CondAnd>} [{<CondAtom>} [{<ExprArith>} [{<Term>} [{<Factor>} [{0} ]][{<Term'>} ]][{<ExprArith'>} ]][{<Comp>} [{<} ]][{<ExprArith>} [{<Term>} [{<Factor>} [{b} ]][{<Term'>} ]][{<ExprArith'>} ]]][{<CondAnd'>} ]][{<Cond'>} ]][{)} ][{{} ][{<Code>} [{<Instruction>} [{<Assign>} [{c} ][{:=} ][{<ExprArith>} [{<Term>} [{<Factor>} [{b} ]][{<Term'>} ]][{<ExprArith'>} ]]][{;} ]][{<Code>} [{<Instruction>} [{<Loop>} [{LOOP} ][{(} ][{<Cond>} [{<CondAnd>} [{<CondAtom>} [{<ExprArith>} [{<Term>} [{<Factor>} [{b} ]][{<Term'>} ]][{<ExprArith'>} ]][{<Comp>} [{<=} ]][{<ExprArith>} [{<Term>} [{<Factor>} [{a} ]][{<Term'>} ]][{<ExprArith'>} ]]][{<CondAnd'>} ]][{<Cond'>} ]][{)} ][{{} ][{<Code>} [{<Instruction>} [{<Assign>} [{a} ][{:=} ][{<ExprArith>} [{<Term>} [{<Factor>} [{a} ]][{<Term'>} ]][{<ExprArith'>} [{-} ][{<Term>} [{<Factor>} [{b} ]][{<Term'>} ]][{<ExprArith'>} ]]]][{;} ]][{<Code>} ]][{}} ]]][{<Code>} [{<Instruction>} [{<Assign>} [{b} ][{:=} ][{<ExprArith>} [{<Term>} [{<Factor>} [{a} ]][{<Term'>} ]][{<ExprArith'>} ]]][{;} ]][{<Code>} [{<Instruction>} [{<Assign>} [{a} ][{:=} ][{<ExprArith>} [{<Term>} [{<Factor>} [{c} ]][{<Term'>} ]][{<ExprArith'>} ]]][{;} ]][{<Code>} ]]]]][{}} ]]][{<Code>} [{<Instruction>} [{@} ][{a} ][{;} ]][{<Code>} ]]]]][{}} ]];
+\end{forest}
+
+\end{document}
+%% Local Variables:
+%% TeX-engine: pdflatex
+%% End:

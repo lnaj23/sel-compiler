@@ -1,4 +1,5 @@
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -47,7 +48,14 @@ public class Main{
         final LexicalAnalyzer analyzer = new LexicalAnalyzer(source);
         
         final Parser parser = new Parser(analyzer);
-        parser.parse();
+        final ParseTree tree = parser.parse();
         System.out.println(parser.getDerivation());
+        String latexCode = tree.toLaTeX();
+
+        try (FileWriter fw = new FileWriter("output.tex")) {
+            fw.write(latexCode);
+        } catch (IOException e) {
+            System.err.println("Cannot write file: " + e.getMessage());
+        }
     }
 }
