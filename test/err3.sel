@@ -1,4 +1,0 @@
-## Variable starting with maj character: invalid ##
-Main() {
-    X := 5;
-}
