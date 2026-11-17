@@ -19,4 +19,7 @@ doc/
 
 .metals/
 
-output.*
+output.aux
+output.log
+output.pdf
+output.tex
