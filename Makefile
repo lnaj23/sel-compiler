@@ -6,7 +6,7 @@ jflex:
 build: jflex
 	mkdir -p bin
 	javac -d bin -cp src/ src/*.java
-	jar cfe dist/part2.jar Main -C bin .
+	jar cfe dist/part2.jar Main -C more .
 	javadoc -private src/*.java -d doc/javadoc
 
 testing:
