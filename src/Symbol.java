@@ -189,12 +189,4 @@
         }
         return res;
     }
-
-    public String toTexString() {
-        if (isTerminal()) { // Terminal value
-            return this.value != null ? this.value.toString() : this.type.toString();
-        } else {
-            return this.value.toString(); // Non-terminal
-        }
-    }
  }
