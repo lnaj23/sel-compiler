@@ -1,6 +1,8 @@
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -11,28 +13,47 @@ public class Main {
    /**
     * Program entry point.
     * @param args args[0] must be the sourceFile.sel path.
+    * java -jar part2.jar sourceFile.sel                     → args = ["sourceFile.sel"]  si args.length =1 , args[0] -> sourceFile.sel
+    * java -jar part2.jar -wt sourceFile.tex sourceFile.sel  → args = ["-wt", "sourceFile.tex", "sourceFile.sel"] si args.length =3 , args[2] -> sourceFile.sel
    */
    public static void main(String[] args) {
-      if (args.length != 1) {
+      int u = 0;
+      if (args.length < 1 || args.length== 2) {
         System.err.println("Please add the .sel pathfile in the Makefile.");
         System.exit(1);
       }
-
-      try (Reader reader = new FileReader(args[0])) {
-         LexicalAnalyzer scanner = new LexicalAnalyzer(reader);
-
-         Map<String, Integer> variablesEncountered = new TreeMap<>(); // Storing all variables with their line
-         Symbol currentSymbol = scanner.nextToken();
-         while (currentSymbol.getType() != LexicalUnit.EOS) { // Scanner loop
-            if (currentSymbol.getType() == LexicalUnit.VARNAME) { // Filtering variables and adding them to the storing map if they never appeared
-               variablesEncountered.putIfAbsent(currentSymbol.getValue().toString(), currentSymbol.getLine());
-            }
-         System.out.println(currentSymbol); // Println use directly the toString() method overwriten, no need to call it
-         currentSymbol = scanner.nextToken();
+      if (args.length >3){
+         System.err.println("Too much File");
+         System.exit(1);
+      }
+      if (args.length == 3){
+         if (!args[0].equals("-wt")) {
+            System.err.println("Not good option");
+            System.exit(1);
          }
-         
-         showVariables(variablesEncountered); // After printing all caracters units, printing variables
-      
+
+         u =2;
+      }
+
+      try (Reader reader = new FileReader(args[u])) {
+         LexicalAnalyzer scanner = new LexicalAnalyzer(reader);
+         Parser parser = new Parser(reader,scanner);
+
+         ParseTree parseTree = parser.parse();
+         List<Integer> rules = parser.getRules();
+
+         for (int i=0 ; i< rules.size();i++) {
+            System.out.print(rules.get(i) + " ");
+         }
+         System.out.println(); // retour a la ligne
+
+         /// Seulement quand l'option -wt est donnée
+      if (u ==2) {
+         try (FileWriter writer = new FileWriter(args[1])) {
+            writer.write(parseTree.toLaTeX());
+         }
+      }
+
       }  catch (RuntimeException error) { // Catching errors defined in .flex file
          System.err.println("Lexical error: " + error.getMessage());
          System.exit(1);

@@ -8,6 +8,10 @@ all:
 run:
 	java -jar dist/part1.jar $(FILE)
 
+tree:
+	java -jar dist/part1.jar -wt arbre.tex $(FILE)
+
+
 doc:
 	javadoc -private -d doc/ src/*.java
 
