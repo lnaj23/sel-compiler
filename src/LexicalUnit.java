@@ -45,7 +45,7 @@ public enum LexicalUnit{
 
     /** <code>!</code> */
     NEGATION,
-    /** <code>&&</code> */
+    /** {@code &&} */
     AND,
     /** <code>||</code> */
     OR,

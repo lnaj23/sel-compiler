@@ -3,18 +3,49 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Recursive-descent LL(1) parser for the SEL language.
+ * <p>
+ * Each grammar variable is handled by a private method. The parser records
+ * the number of every rule it applies, which gives the leftmost derivation,
+ * and builds the corresponding parse tree.
+ */
 public class Parser {
+    /** The current lookahead token. */
     private Symbol current;
+    /** The lexical analyzer providing the tokens. */
     private final LexicalAnalyzer scanner;
+    /** The numbers of the rules applied, in order (leftmost derivation). */
     private final List<Integer> rules = new ArrayList<>();
 
+    /**
+     * Creates a parser and reads the first token.
+     *
+     * @param source  the input source
+     * @param scanner the lexical analyzer reading {@code source}
+     * @throws IOException if the first token cannot be read
+     */
     public Parser(Reader source, LexicalAnalyzer scanner) throws IOException{
         this.scanner= scanner;
         this.current = scanner.nextToken();
     }
+
+    /**
+     * Returns the rules applied during parsing.
+     *
+     * @return the list of rule numbers forming the leftmost derivation
+     */
     public List<Integer> getRules(){
         return this.rules;
     }
+
+    /**
+     * Checks that the current token has the expected type and consumes it.
+     *
+     * @param expected the expected token type
+     * @return a leaf of the parse tree containing the consumed token
+     * @throws RuntimeException if the current token is not of the expected type
+     */
     private ParseTree match(LexicalUnit expected){
         if(current.getType() != expected){
             throw new RuntimeException(expected.toString());
@@ -27,6 +58,13 @@ public class Parser {
         }
         return leaf;
     }
+
+    /**
+     * Parses the whole program and checks that nothing follows it.
+     *
+     * @return the parse tree of the program
+     * @throws RuntimeException if a syntax error is found
+     */
     public ParseTree parse(){
         ParseTree Tree = program();
         if(current.getType()!= LexicalUnit.EOS){
@@ -34,7 +72,13 @@ public class Parser {
         }
         return Tree;
     }
-/// [1]  <S> → Main() { <Code> }
+
+    /**
+     * <pre>{@code
+     * [1]  <Program>     → Main ( ) { <Code> }
+     * }</pre>
+     * @return the parse tree of Program
+     */
     private ParseTree program(){
         List<ParseTree> chdn = new ArrayList<ParseTree>();
         switch (current.getType()) {
@@ -48,7 +92,11 @@ public class Parser {
 
             chdn.add(code());
             chdn.add(match(LexicalUnit.RBRACK));
+            
             break;
+
+        default:
+    throw new RuntimeException("Syntax error: unexpected " + current.getType());   
         }
 
 
@@ -59,9 +107,13 @@ public class Parser {
 
     }
 
-    /** [2]  <Code>        → <Instruction> <Code>
-     [3]                → ε */
-
+    /**
+     * <pre>{@code
+     * [2]  <Code>        → <Instruction> <Code>
+     * [3]                → ε
+     * }</pre>
+     * @return the parse tree of Code
+     */
     private ParseTree code(){
         List<ParseTree> chdn_code = new ArrayList<ParseTree>();
 
@@ -75,16 +127,24 @@ public class Parser {
             case RBRACK:
                 rules.add(3);
                 break;
+            default:
+                 throw new RuntimeException("Syntax error: unexpected " + current.getType());
 
         }
         ParseTree codeTree = new ParseTree(new Symbol(null,"Code"),chdn_code);
         return codeTree;
     }
-  /**  [4]  <Instruction> → <Assign> ;
-[5]                → <Loop>
-[6]                → <If>
-[7]                → @ [VarName] ;
-[8]                → IN [VarName] ; */
+
+    /**
+     * <pre>{@code
+     * [4]  <Instruction> → <Assign> ;
+     * [5]                → <Loop>
+     * [6]                → <If>
+     * [7]                → @ [VarName] ;
+     * [8]                → IN [VarName] ;
+     * }</pre>
+     * @return the parse tree of Instruction
+     */
     private ParseTree instructions(){
         List<ParseTree> chdn_instru = new ArrayList<ParseTree>();
 
@@ -115,12 +175,20 @@ public class Parser {
                 chdn_instru.add(match(LexicalUnit.VARNAME));
                 chdn_instru.add(match(LexicalUnit.SEMI));
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType());
 
         }
         ParseTree instruTree = new ParseTree(new Symbol(null,"Instructions"),chdn_instru);
     return instruTree;
     }
-///  [9]  <Assign>      → [/VarName] := <ExprArith>
+
+    /**
+     * <pre>{@code
+     * [9]  <Assign>      → [VarName] := <ExprArith>
+     * }</pre>
+     * @return the parse tree of Assign
+     */
     private ParseTree assign(){
         List<ParseTree> chdn_assign = new ArrayList<ParseTree>();
         ParseTree assignTree = new ParseTree(new Symbol(null,"Assign"),chdn_assign);
@@ -131,11 +199,19 @@ public class Parser {
             chdn_assign.add(match(LexicalUnit.ASSIGN));
             chdn_assign.add(exprArith());
             break;
+        default:
+        throw new RuntimeException("Syntax error: unexpected " + current.getType());    
         }
 
         return assignTree;
     }
- ///[10] <ExprArith>   → <Prod> <ExprArith'>
+
+    /**
+     * <pre>{@code
+     * [10] <ExprArith>   → <Prod> <ExprArith'>
+     * }</pre>
+     * @return the parse tree of ExprArith
+     */
     private ParseTree exprArith(){
         List<ParseTree> chdn_exprArith = new ArrayList<ParseTree>();
         ParseTree exprArithTree = new ParseTree(new Symbol(null,"ExprArith"),chdn_exprArith);
@@ -146,12 +222,21 @@ public class Parser {
                 chdn_exprArith.add(prod());
                 chdn_exprArith.add(exprArithP());
                 break;
-        }
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType());    
+        }    
+        
         return exprArithTree;
     }
-    /** [11] <ExprArith'>  → + <Prod> <ExprArith'>
-            [12]               → - <Prod> <ExprArith'>
-            [13]               → ε */
+
+    /**
+     * <pre>{@code
+     * [11] <ExprArith'>  → + <Prod> <ExprArith'>
+     * [12]               → - <Prod> <ExprArith'>
+     * [13]               → ε
+     * }</pre>
+     * @return the parse tree of ExprArith'
+     */
     private ParseTree exprArithP(){
         List<ParseTree> chdn_exprArithP = new ArrayList<ParseTree>();
         ParseTree exprArithPRIMETree = new ParseTree(new Symbol(null,"ExprArithPRIME"),chdn_exprArithP);
@@ -171,12 +256,18 @@ public class Parser {
                 case SEMI: case RPAREN: case OR: case AND: case EQUAL: case SMALEQ: case SMALLER: case RSQUARE:
                     rules.add(13);
                     break;
+                 default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType());     
             }
         return exprArithPRIMETree;
     }
 
-    ///[14] <Prod>        → <None> <Prod'>
-    ///
+    /**
+     * <pre>{@code
+     * [14] <Prod>        → <None> <Prod'>
+     * }</pre>
+     * @return the parse tree of Prod
+     */
     private ParseTree prod(){
         List<ParseTree> chdn_prod = new ArrayList<ParseTree>();
         ParseTree prodTree = new ParseTree(new Symbol(null,"Prod"),chdn_prod);
@@ -186,14 +277,20 @@ public class Parser {
             chdn_prod.add(none());
             chdn_prod.add(prodP());
             break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return prodTree;
     }
 
-    /** [15] <Prod'>       → * <None> <Prod'>
-     [16]               → / <None> <Prod'>
-     [17]               → ε */
-
+    /**
+     * <pre>{@code
+     * [15] <Prod'>       → * <None> <Prod'>
+     * [16]               → / <None> <Prod'>
+     * [17]               → ε
+     * }</pre>
+     * @return the parse tree of Prod'
+     */
     private ParseTree prodP(){
         List<ParseTree> chdn_proP = new ArrayList<ParseTree>();
         ParseTree prodPRIMETree = new ParseTree(new Symbol(null,"ProdPRIME"),chdn_proP);
@@ -214,15 +311,21 @@ public class Parser {
             case SEMI:case PLUS: case MINUS: case RPAREN: case OR: case SMALEQ: case SMALLER: case EQUAL: case AND: case RSQUARE:
                 rules.add(17);
                 break;
-
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
 
         return prodPRIMETree;
 
     }
-   /** [18] <None>        → - <None>
-    [19]               → <Atom>
-    */
+
+    /**
+     * <pre>{@code
+     * [18] <None>        → - <None>
+     * [19]               → <Atom>
+     * }</pre>
+     * @return the parse tree of None
+     */
     private ParseTree none(){
         List<ParseTree> chdn_none = new ArrayList<ParseTree>();
         ParseTree noneTree = new ParseTree(new Symbol(null,"None"),chdn_none);
@@ -237,14 +340,20 @@ public class Parser {
                 rules.add(19);
                 chdn_none.add(atom());
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return noneTree;
     }
 
-    /** [20] <Atom>        → [VarName]
-     [21]               → [Number]
-     [22]               → ( <ExprArith> ) */
-
+    /**
+     * <pre>{@code
+     * [20] <Atom>        → [VarName]
+     * [21]               → [Number]
+     * [22]               → ( <ExprArith> )
+     * }</pre>
+     * @return the parse tree of Atom
+     */
     private ParseTree atom(){
         List<ParseTree> chdn_atom = new ArrayList<ParseTree>();
         ParseTree atomTree = new ParseTree(new Symbol(null,"Atom"), chdn_atom);
@@ -263,14 +372,19 @@ public class Parser {
                  chdn_atom.add(exprArith());
                  chdn_atom.add(match(LexicalUnit.RPAREN));
                  break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
          }
          return atomTree;
 
     }
 
-
-    /// [23] <If>          → If ( <Cond> ) { <Code> }
-
+    /**
+     * <pre>{@code
+     * [23] <If>          → If ( <Cond> ) { <Code> }
+     * }</pre>
+     * @return the parse tree of If
+     */
     private ParseTree si(){
         List<ParseTree> chdn_if = new ArrayList<ParseTree>();
         ParseTree ifTree = new ParseTree(new Symbol(null,"If"), chdn_if);
@@ -285,11 +399,18 @@ public class Parser {
             chdn_if.add(code());
             chdn_if.add(match(LexicalUnit.RBRACK));
             break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return ifTree;
     }
 
-    ///[24] <Cond>        → <And> <Cond'>
+    /**
+     * <pre>{@code
+     * [24] <Cond>        → <And> <Cond'>
+     * }</pre>
+     * @return the parse tree of Cond
+     */
     private ParseTree cond(){
         List<ParseTree> chdn_cond = new ArrayList<ParseTree>();
         ParseTree condTree = new ParseTree(new Symbol(null,"Cond"), chdn_cond);
@@ -299,11 +420,19 @@ public class Parser {
             chdn_cond.add(and());
             chdn_cond.add(condP());
             break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return condTree;
         }
-    /** [25] <Cond'>       → || <And> <Cond'>
-     [26]               → ε */
+
+    /**
+     * <pre>{@code
+     * [25] <Cond'>       → || <And> <Cond'>
+     * [26]               → ε
+     * }</pre>
+     * @return the parse tree of Cond'
+     */
     private ParseTree condP(){
         List<ParseTree> chdn_condP = new ArrayList<ParseTree>();
         ParseTree condPRIMETree = new ParseTree(new Symbol(null,"CondPRIME"), chdn_condP);
@@ -317,12 +446,19 @@ public class Parser {
             case RPAREN: case RSQUARE:
                 rules.add(26);
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
 
         }
     return condPRIMETree;
     }
 
-    /// [27] <And>         → <Nope> <And'>
+    /**
+     * <pre>{@code
+     * [27] <And>         → <Nope> <And'>
+     * }</pre>
+     * @return the parse tree of And
+     */
     private ParseTree and(){
         List<ParseTree> chdn_and = new ArrayList<ParseTree>();
         ParseTree andTree = new ParseTree(new Symbol(null,"And"),chdn_and);
@@ -332,13 +468,19 @@ public class Parser {
             chdn_and.add(nope());
             chdn_and.add(andP());
             break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return andTree;
     }
 
-    /** [28] <And'>        → && <Nope> <And'>
-     [29]               → ε */
-
+    /**
+     * <pre>{@code
+     * [28] <And'>        → && <Nope> <And'>
+     * [29]               → ε
+     * }</pre>
+     * @return the parse tree of And'
+     */
     private ParseTree andP(){
         List<ParseTree> chdn_andP = new ArrayList<ParseTree>();
         ParseTree andPRIMETree = new ParseTree(new Symbol(null,"AndPRIME"), chdn_andP);
@@ -353,14 +495,22 @@ public class Parser {
             case RPAREN: case OR: case RSQUARE:
                 rules.add(29);
                 break;
+
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
 
         return andPRIMETree;
 
     }
 
-    /** [30] <Nope>        → ! <Nope>
-     [31]               → <Atom2> */
+    /**
+     * <pre>{@code
+     * [30] <Nope>        → ! <Nope>
+     * [31]               → <Atom2>
+     * }</pre>
+     * @return the parse tree of Nope
+     */
     private ParseTree nope(){
         List<ParseTree> chdn_nope = new ArrayList<ParseTree>();
         ParseTree nopeTree = new ParseTree(new Symbol(null,"Nope"), chdn_nope);
@@ -376,16 +526,21 @@ public class Parser {
                 rules.add(31);
                 chdn_nope.add(atom2());
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return nopeTree;
     }
 
-    /** [32] <Atom2>       → FALSE
-     [33]               → TRUE
-     [34]               → [ <Cond> ]
-     [35]               → <ExprArith> <Comp> <ExprArith> */
-
-
+    /**
+     * <pre>{@code
+     * [32] <Atom2>       → FALSE
+     * [33]               → TRUE
+     * [34]               → [ <Cond> ]
+     * [35]               → <ExprArith> <Comp> <ExprArith>
+     * }</pre>
+     * @return the parse tree of Atom2
+     */
     private ParseTree atom2(){
         List<ParseTree> chdn_atom2 = new ArrayList<ParseTree>();
         ParseTree atom2Tree = new ParseTree(new Symbol(null,"Atom2"), chdn_atom2);
@@ -404,12 +559,14 @@ public class Parser {
                 chdn_atom2.add(cond());
                 chdn_atom2.add(match(LexicalUnit.RSQUARE));
                 break;
-            case VARNAME: case MINUS: case NUMBER: case LPAREN: ///ATOATAIAOTIJAOTI
+            case VARNAME: case MINUS: case NUMBER: case LPAREN:
                 rules.add(35);
                 chdn_atom2.add(exprArith());
                 chdn_atom2.add(comp());
                 chdn_atom2.add(exprArith());
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
 
         }
 
@@ -417,10 +574,14 @@ public class Parser {
 
     }
 
-    /** [36] <Comp>        → ==
-     [37]               → <=
-     [38]               → < */
-
+    /**
+     * <pre>{@code
+     * [36] <Comp>        → ==
+     * [37]               → <=
+     * [38]               → <
+     * }</pre>
+     * @return the parse tree of Comp
+     */
     private ParseTree comp(){
         List<ParseTree> chdn_comp = new ArrayList<ParseTree>();
         ParseTree compTree = new ParseTree(new Symbol(null,"Comp"),chdn_comp);
@@ -440,10 +601,18 @@ public class Parser {
                 rules.add(38);
                 chdn_comp.add(match(LexicalUnit.SMALLER));
                 break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
         return compTree;
     }
-    /// [39] <Loop>        → LOOP ( <Cond> ) { <Code>}
+
+    /**
+     * <pre>{@code
+     * [39] <Loop>        → LOOP ( <Cond> ) { <Code> }
+     * }</pre>
+     * @return the parse tree of Loop
+     */
     private ParseTree loop(){
         List<ParseTree> chdn_loop = new ArrayList<ParseTree>();
         ParseTree loopTree = new ParseTree(new Symbol(null,"Loop"), chdn_loop);
@@ -458,6 +627,8 @@ public class Parser {
             chdn_loop.add(code());
             chdn_loop.add(match(LexicalUnit.RBRACK));
             break;
+            default:
+                throw new RuntimeException("Syntax error: unexpected " + current.getType()); 
         }
 
         return loopTree;
