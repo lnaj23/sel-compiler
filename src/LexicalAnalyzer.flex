@@ -29,6 +29,8 @@ Number  = [0-9]+
 ":="        { return new Symbol(LexicalUnit.ASSIGN,   yyline, yycolumn, yytext()); }
 "("         { return new Symbol(LexicalUnit.LPAREN,   yyline, yycolumn, yytext()); }
 ")"         { return new Symbol(LexicalUnit.RPAREN,   yyline, yycolumn, yytext()); }
+"["         {return new Symbol(LexicalUnit.LSQUARE, yyline , yycolumn , yytext()); }
+"]"         {return new Symbol(LexicalUnit.RSQUARE, yyline , yycolumn , yytext()); }
 "{"         { return new Symbol(LexicalUnit.LBRACK,   yyline, yycolumn, yytext()); }
 "}"         { return new Symbol(LexicalUnit.RBRACK,   yyline, yycolumn, yytext()); }
 

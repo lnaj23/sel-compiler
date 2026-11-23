@@ -2,12 +2,18 @@
  * A terminal symbol, a.k.a. a letter in the grammar.
  */
 public enum LexicalUnit{
+    /** Program*/
+    PROGRAM,
     /** Main */
     MAIN,
     /** [VarName] */
     VARNAME,
     /** [Number] */
     NUMBER,
+    /** TRUE */
+    TRUE,
+    /** FALSE */
+    FALSE,
     /** <code>;</code> */
     SEMI,
     /** <code>:=</code> */
@@ -16,6 +22,10 @@ public enum LexicalUnit{
     LPAREN,
     /** <code>)</code> */
     RPAREN,
+    /** <code>[</code> */
+    LSQUARE,
+    /** <code>]</code> */
+    RSQUARE,
     /** <code>-</code> */
     MINUS,
     /** <code>+</code> */
@@ -32,9 +42,10 @@ public enum LexicalUnit{
     LBRACK,
     /** <code>}</code> */
     RBRACK,
+
     /** <code>!</code> */
     NEGATION,
-    /** <code>&&</code> */
+    /** {@code &&} */
     AND,
     /** <code>||</code> */
     OR,

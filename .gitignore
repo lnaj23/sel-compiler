@@ -1,22 +1,8 @@
-# Compilés
+build/
 bin/
-*.class
-
-# Jar généré
-dist/*.jar
-
-# Fichier généré par JFlex
-src/LexicalAnalyzer.java
-src/*~
-
-# Javadoc généré
-doc/
-
-# Éditeur / OS
-.vscode/
-.idea/
-.DS_Store
-
-.metals/
-
-output.*
+*.iml
+jflex
+testing
+test/*.tex
+arbre.tex
+*~
